@@ -212,6 +212,7 @@ int main(int argc, char const *argv[])
     rtLog_SetLevel(RT_LOG_DEBUG);
     cout << "RIoT Sample Daemon 1.0" << endl;
     rtConnection con;
+    cout<<" Usage is "<<argv[0]<<" tcp://<<ipaddress:port"<<endl;
     rtConnection_Create(&con, "IOTGateway", argc == 1 ? "tcp://127.0.0.1:10001" : argv[1]);
     rtConnection_AddListener(con, "GetAvailableDevices", onAvailableDevices, con);
     rtConnection_AddListener(con, "GetDeviceProperties", onDeviceProperties, con);

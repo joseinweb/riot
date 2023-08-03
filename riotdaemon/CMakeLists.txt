@@ -15,16 +15,8 @@ endif()
 
 add_executable(${RIOT_DAEMON} RIoTDaemon.cpp)
 target_include_directories(${RIOT_DAEMON} PRIVATE  ${RTMESSAGE_API_HEADERS})
-target_link_libraries(${RIOT_DAEMON} PRIVATE  ${RTMESSAGE_LIBRARIES} )
+target_link_libraries(${RIOT_DAEMON} PRIVATE  ${RTMESSAGE_LIBRARIES} pthread)
 
 set_source_files_properties(RIoTDaemon.cpp PROPERTIES COMPILE_FLAGS "-fpermissive")
 
-add_executable(sender sample_req.c)
-target_include_directories(sender PRIVATE  ${RTMESSAGE_API_HEADERS})
-target_link_libraries(sender PRIVATE  ${RTMESSAGE_LIBRARIES} )
-
-add_executable(receiver sample_recv.c)
-target_include_directories(receiver PRIVATE  ${RTMESSAGE_API_HEADERS})
-target_link_libraries(receiver PRIVATE  ${RTMESSAGE_LIBRARIES} )
-
-install(TARGETS ${RIOT_DAEMON} sender receiver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDR})
+install(TARGETS ${RIOT_DAEMON}  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDR})
