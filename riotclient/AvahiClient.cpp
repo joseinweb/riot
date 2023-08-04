@@ -109,7 +109,7 @@ namespace avahi
             break;
         case AVAHI_BROWSER_ALL_FOR_NOW:
             std::cout << "onServiceDiscovery AVAHI_BROWSER_ALL_FOR_NOW" << std::endl;
-            stopDiscovery();
+            // stopDiscovery();
             break;
         case AVAHI_BROWSER_REMOVE:
             std::cout << "onServiceDiscovery AVAHI_BROWSER_REMOVE called " << std::endl;
@@ -163,16 +163,15 @@ namespace avahi
     int discoverDevices(std::list<std::shared_ptr<RDKDevice>> &devices, int timeoutMillis)
     {
 
-        std::cout << "discoverDevices" << std::endl;
+        std::cout << "[discoverDevices] discoverDevices" << std::endl;
         // Let us clear existing deviceList;
         if (m_scanInProgress)
             return DD_SCAN_ALREADY_IN_PROGRESS;
-        // std::thread t([timeoutMillis]
-        //               {
+
         deviceList.clear();
         // Let us put the scan in progress.
         m_scanInProgress = true;
-        std::cout << "Starting scanning" << std::endl;
+        std::cout << "[discoverDevices] Starting scanning" << std::endl;
         avahi_threaded_poll_start(thread_poll);
 
         std::unique_lock<std::mutex> lock(m_stateMutex);
@@ -182,7 +181,7 @@ namespace avahi
         while (std::chrono::steady_clock::now() < endTime)
         {
 
-            // Error occured in between ?
+            // Got a device or error occured?
             if (!m_scanInProgress)
             {
                 std::thread::id this_id = std::this_thread::get_id();
@@ -196,15 +195,7 @@ namespace avahi
 
             m_stateCond.wait_for(lock, remainingTime);
         }
-        std::cout << "Outside While loop" << std::endl;
-        //      if (m_scanInProgress)
-        {
-            // avahi_threaded_poll_lock(thread_poll);
-            // avahi_threaded_poll_stop(thread_poll);
-            // avahi_threaded_poll_unlock(thread_poll);
-            m_scanInProgress = false;
-        }
-
+        std::cout << "[discoverDevices] Total devices found " << deviceList.size() << std::endl;
         for (std::list<std::shared_ptr<RDKDevice>>::iterator it = deviceList.begin(); it != deviceList.end(); ++it)
             devices.push_back(*it);
         return deviceList.size();
@@ -222,8 +213,11 @@ namespace avahi
         if (client)
             avahi_client_free(client);
         if (thread_poll)
-            avahi_threaded_poll_free(thread_poll);
-
+        {
+           // avahi_threaded_poll_lock(thread_poll);
+            avahi_threaded_poll_stop(thread_poll);
+            //avahi_threaded_poll_unlock(thread_poll);
+        }
         m_initialized = false;
         sb = nullptr;
         client = nullptr;
