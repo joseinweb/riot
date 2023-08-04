@@ -3,7 +3,7 @@
 # If not stated otherwise in this file or this component's LICENSE
 # file the following copyright and licenses apply:
 #
-# Copyright 2016 RDK Management
+# Copyright 2023 RDK Management
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@
 #include "rtMessage.h"
 
 using namespace std;
-void onAvailableDevices(rtMessageHeader const *hdr, uint8_t const *buff, uint32_t n, void *closure);
-void onDeviceProperties(rtMessageHeader const *hdr, uint8_t const *buff, uint32_t n, void *closure);
-void onDeviceProperty(rtMessageHeader const *hdr, uint8_t const *buff, uint32_t n, void *closure);
-void onSendCommand(rtMessageHeader const *hdr, uint8_t const *buff, uint32_t n, void *closure);
+void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32_t rtMsgLength, void *userData);
+void onDeviceProperties(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32_t rtMsgLength, void *userData);
+void onDeviceProperty(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32_t rtMsgLength, void *userData);
+void onSendCommand(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32_t rtMsgLength, void *userData);
 
 rtConnection con;
 bool m_isActive = true;
@@ -68,8 +68,8 @@ void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
         rtMessage_SetString(device, "devType", "1");
         rtMessage_AddMessage(res, "devices", device);
 
-        char *output;
-        int outLen;
+        const char *output;
+        uint32_t outLen;
 
         rtMessage_Create(&device);
         rtMessage_SetString(device, "name", "Hewei-HDCAM-1234");
@@ -102,12 +102,10 @@ void onDeviceProperties(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
         rtMessage res;
         rtMessage_Create(&res);
 
-        char *uuid;
+        const char *uuid;
         rtMessage_GetString(req, "deviceId", &uuid);
 
         cout << "Device identifier is " << uuid << endl;
-
-
 
         rtMessage_AddString(res, "properties", "Prop1=Josekutty");
         rtMessage_AddString(res, "properties", "Prop2=Kottarathil");
@@ -138,7 +136,7 @@ void onDeviceProperty(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uin
         rtMessage res;
         rtMessage_Create(&res);
 
-        char *uuid, *property;
+        const char *uuid, *property;
         rtMessage_GetString(req, "deviceId", &uuid);
         rtMessage_GetString(req, "property", &property);
 
@@ -166,13 +164,13 @@ void onSendCommand(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32
         rtMessage res;
         rtMessage_Create(&res);
 
-        char *uuid, *property;
+        const char *uuid, *command;
         rtMessage_GetString(req, "uuid", &uuid);
-        rtMessage_GetString(req, "command", &property);
+        rtMessage_GetString(req, "command", &command);
 
-        cout << "Device identifier is " << uuid << ", command requested :" << property << endl;
+        cout << "Device identifier is " << uuid << ", command requested :" << command << endl;
         free(uuid);
-        free(property);
+        free(command);
 
         rtMessage_SetInt32(res, "result", 1);
         rtConnection_SendResponse(con, rtHeader, res, 1000);
@@ -212,7 +210,7 @@ int main(int argc, char const *argv[])
     rtLog_SetLevel(RT_LOG_DEBUG);
     cout << "RIoT Sample Daemon 1.0" << endl;
     rtConnection con;
-    cout<<" Usage is "<<argv[0]<<" tcp://<<ipaddress:port"<<endl;
+    cout << " Usage is " << argv[0] << " tcp://<<ipaddress:port" << endl;
     rtConnection_Create(&con, "IOTGateway", argc == 1 ? "tcp://127.0.0.1:10001" : argv[1]);
     rtConnection_AddListener(con, "GetAvailableDevices", onAvailableDevices, con);
     rtConnection_AddListener(con, "GetDeviceProperties", onDeviceProperties, con);

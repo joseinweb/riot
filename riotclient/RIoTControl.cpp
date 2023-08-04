@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE
  * file the following copyright and licenses apply:
  *
- * Copyright 2020 RDK Management
+ * Copyright 2023 RDK Management
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ namespace WPEFramework
         {
             if (avahi::initialize())
             {
-                std::list<std::shared_ptr<avahi::RDKDevice> > devices;
+                std::list<std::shared_ptr<avahi::RDKDevice>> devices;
                 if (avahi::discoverDevices(devices) > 0)
                 {
                     // Find the one with ipv4 address and return
-                    for (std::list<std::shared_ptr<avahi::RDKDevice> >::iterator it = devices.begin(); it != devices.end(); ++it)
+                    for (std::list<std::shared_ptr<avahi::RDKDevice>>::iterator it = devices.begin(); it != devices.end(); ++it)
                     {
                         std::shared_ptr<avahi::RDKDevice> device = *it;
                         std::cout << "Found IOT Gateway device " << device->ipAddress << ":" << device->port << std::endl;
@@ -91,10 +91,10 @@ namespace WPEFramework
             bool success = false;
             if (connectToRemote())
             {
-                std::list<std::shared_ptr<WPEFramework::iotbridge::IOTDevice> > deviceList;
+                std::list<std::shared_ptr<WPEFramework::iotbridge::IOTDevice>> deviceList;
                 if (iotbridge::getDeviceList(deviceList) > 0)
                 {
-                    std::cout << "[getAvailableDevicesWrapper] total count "<<deviceList.size()<<std::endl;
+                    std::cout << "[getAvailableDevicesWrapper] total count " << deviceList.size() << std::endl;
 
                     for (const auto &device : deviceList)
                     {
@@ -111,13 +111,13 @@ namespace WPEFramework
             return (success);
         }
 
-        bool RIoTControl::getDeviceProperties(const std::string &uuid,std::list<std::string> &properties)
+        bool RIoTControl::getDeviceProperties(const std::string &uuid, std::list<std::string> &properties)
         {
             bool success = false;
 
             if (connectToRemote())
             {
-                iotbridge::getDeviceProperties(uuid,properties);
+                iotbridge::getDeviceProperties(uuid, properties);
                 std::cout << " Value returned is " << properties.size() << std::endl;
                 success = true;
                 iotbridge::cleanupIPC();
@@ -177,9 +177,9 @@ int main(int argc, char const *argv[])
 
     RIoTControl *client = new RIoTControl();
     std::list<std::string> properties;
-    //client->getDeviceProperty("123-45-876","doomed");
-    //client->getAvailableDevicesWrapper();
-    client->getDeviceProperties("1234-123-321312",properties);
+    // client->getDeviceProperty("123-45-876","doomed");
+    // client->getAvailableDevicesWrapper();
+    client->getDeviceProperties("1234-123-321312", properties);
     delete client;
 
     return 0;

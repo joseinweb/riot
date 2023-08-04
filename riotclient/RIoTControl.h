@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE
  * file the following copyright and licenses apply:
  *
- * Copyright 2020 RDK Management
+ * Copyright 2023 RDK Management
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ namespace WPEFramework
 
             bool getAvailableDevicesWrapper();
             bool getDeviceProperty(const std::string &uuid, const std::string &prop);
-            bool getDeviceProperties(const std::string &uuid,std::list<std::string> &properties);
+            bool getDeviceProperties(const std::string &uuid, std::list<std::string> &properties);
             bool sendCommand(const std::string &uuid, const std::string &cnd);
 
             bool initializeIPC();

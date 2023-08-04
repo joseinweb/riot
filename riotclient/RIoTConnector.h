@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE
  * file the following copyright and licenses apply:
  *
- * Copyright 2020 RDK Management
+ * Copyright 2023 RDK Management
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ namespace WPEFramework
         bool initializeIPC(const std::string &remoteAddr);
         void cleanupIPC();
 
-        int getDeviceList(std::list<std::shared_ptr<IOTDevice> > &deviceList);
+        int getDeviceList(std::list<std::shared_ptr<IOTDevice>> &deviceList);
         int getDeviceProperties(const std::string &uuid, std::list<std::string> &propList);
         std::string getDeviceProperty(const std::string &uuid, const std::string &propertyName);
         int sendCommand(const std::string &uuid, const std::string &cmd);

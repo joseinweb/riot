@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE
  * file the following copyright and licenses apply:
  *
- * Copyright 2020 RDK Management
+ * Copyright 2023 RDK Management
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,13 +197,13 @@ namespace avahi
             m_stateCond.wait_for(lock, remainingTime);
         }
         std::cout << "Outside While loop" << std::endl;
-//      if (m_scanInProgress)
+        //      if (m_scanInProgress)
         {
             // avahi_threaded_poll_lock(thread_poll);
-            //avahi_threaded_poll_stop(thread_poll);
+            // avahi_threaded_poll_stop(thread_poll);
             // avahi_threaded_poll_unlock(thread_poll);
             m_scanInProgress = false;
-        } 
+        }
 
         for (std::list<std::shared_ptr<RDKDevice>>::iterator it = deviceList.begin(); it != deviceList.end(); ++it)
             devices.push_back(*it);
