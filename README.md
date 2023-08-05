@@ -7,6 +7,9 @@ use the following commands
     git clone https://github.com/joseinweb/riot.git
     mkdir build;cd build
     cmake ../ -DRBUS_INSTALL_DIR=<path of rbus installed components>
+    make
+
+The excutables will be in riotclient and riotdaemon folder in build folder.
 
 ### Running the code
 First you need to set environment variables
