@@ -95,8 +95,7 @@ namespace WPEFramework
                     device->deviceId = entry;
 
                     rtMessage_GetString(devEntry, "devType", (const char **)&entry);
-                    int x = std::stoi(entry);
-                    device->devType = x == 0 ? CAMERA : LIGHT_BULB;
+                    device->devType = entry;
 
                     deviceList.push_back(device);
                 }

@@ -98,7 +98,8 @@ namespace WPEFramework
 
                     for (const auto &device : deviceList)
                     {
-                        std::cout << "Found device " << device->deviceName << " , " << device->deviceId << std::endl;
+                        std::cout << "Found device, Name " << device->deviceName << " , ID:" << device->deviceId <<
+                        ", Class "<<device->devType<< std::endl;
                     }
                 }
                 success = true;
@@ -177,9 +178,10 @@ int main(int argc, char const *argv[])
 
     RIoTControl *client = new RIoTControl();
     std::list<std::string> properties;
-    // client->getDeviceProperty("123-45-876","doomed");
-    // client->getAvailableDevicesWrapper();
+    client->getAvailableDevicesWrapper();
     client->getDeviceProperties("1234-123-321312", properties);
+    client->getDeviceProperty("1234-123-321312","doomed");
+    client->sendCommand("1234-123-321312","on=false");
     delete client;
 
     return 0;
