@@ -38,14 +38,6 @@ bool m_isActive = true;
 std::condition_variable m_act_cv;
 std::mutex m_lock;
 
-void registerForServices()
-{
-    rtConnection_AddListener(con, "getAvailableDevices", onAvailableDevices, con);
-    rtConnection_AddListener(con, "getDeviceProperties", onDeviceProperties, con);
-    rtConnection_AddListener(con, "getDeviceProperty", onDeviceProperty, con);
-    rtConnection_AddListener(con, "sendCommand", onSendCommand, con);
-}
-
 void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32_t rtMsgLength, void *userData)
 {
     rtConnection con = (rtConnection)userData;
@@ -65,7 +57,7 @@ void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
 
         rtMessage_SetString(device, "name", "Philips");
         rtMessage_SetString(device, "uuid", "1234-PHIL-LIGHT-BULB");
-        rtMessage_SetString(device, "devType", "1");
+        rtMessage_SetString(device, "devType", "Light");
         rtMessage_AddMessage(res, "devices", device);
 
         const char *output;
@@ -73,7 +65,7 @@ void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
 
         rtMessage_Create(&device);
         rtMessage_SetString(device, "name", "Hewei-HDCAM-1234");
-        rtMessage_SetString(device, "devType", "0");
+        rtMessage_SetString(device, "devType", "Camera");
 
         rtMessage_AddMessage(res, "devices", device);
 
@@ -169,8 +161,6 @@ void onSendCommand(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32
         rtMessage_GetString(req, "command", &command);
 
         cout << "Device identifier is " << uuid << ", command requested :" << command << endl;
-        free(uuid);
-        free(command);
 
         rtMessage_SetInt32(res, "result", 1);
         rtConnection_SendResponse(con, rtHeader, res, 1000);
