@@ -99,10 +99,10 @@ void onDeviceProperties(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
 
         cout << "Device identifier is " << uuid << endl;
 
-        rtMessage_AddString(res, "properties", "Prop1=Josekutty");
-        rtMessage_AddString(res, "properties", "Prop2=Kottarathil");
-        rtMessage_AddString(res, "properties", "Prop3=Comcast");
-        rtMessage_AddString(res, "properties", "Prop4=Engineer");
+        rtMessage_AddString(res, "properties", "manufacturer = TP-Link");
+        rtMessage_AddString(res, "properties", "model = Mini Smart Wi-Fi Plug");
+        rtMessage_AddString(res, "properties", "hardwareVersion = 1");
+        rtMessage_AddString(res, "properties", "firmwareVersion = 1");
 
         rtConnection_SendResponse(con, rtHeader, res, 1000);
         rtMessage_Release(res);
