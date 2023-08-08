@@ -25,17 +25,12 @@ namespace WPEFramework
 {
     namespace iotbridge
     {
-        enum IOT_DEVICE_TYPE
-        {
-            CAMERA,
-            LIGHT_BULB
-        };
 
         typedef struct _IOTDevice
         {
             std::string deviceName;
             std::string deviceId;
-            IOT_DEVICE_TYPE devType;
+            std::string devType;
         } IOTDevice;
 
         bool initializeIPC(const std::string &remoteAddr);
