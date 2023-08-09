@@ -157,7 +157,7 @@ void onSendCommand(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, uint32
         rtMessage_Create(&res);
 
         const char *uuid, *command;
-        rtMessage_GetString(req, "uuid", &uuid);
+        rtMessage_GetString(req, "deviceId", &uuid);
         rtMessage_GetString(req, "command", &command);
 
         cout << "Device identifier is " << uuid << ", command requested :" << command << endl;
