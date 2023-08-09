@@ -32,6 +32,7 @@ namespace WPEFramework
 
         std::string getRemoteAddress()
         {
+            std::string address = "";
             if (avahi::initialize())
             {
                 std::list<std::shared_ptr<avahi::RDKDevice>> devices;
@@ -45,7 +46,7 @@ namespace WPEFramework
                         if (device->addrType == avahi::IP_ADDR_TYPE::IPV4)
                         {
                             std::cout << "Found ipv4 device " << device->ipAddress << ":" << device->port << std::endl;
-                            return "tcp://" + device->ipAddress + ":" + std::to_string(device->port);
+                            address = "tcp://" + device->ipAddress + ":" + std::to_string(device->port);
                         }
                     }
                 }
@@ -53,7 +54,7 @@ namespace WPEFramework
                 {
                     std::cout << " Failed to identify RDK IoT Gateway." << std::endl;
                 }
-                avahi::unInitialize();
+                // avahi::unInitialize();
                 std::cout << " Failed to identify IPV4 RDK IoT Gateway." << std::endl;
             }
             else
@@ -61,7 +62,7 @@ namespace WPEFramework
                 std::cout << " Failed to initialize avahi " << std::endl;
             }
 
-            return "";
+            return address;
         }
 
         RIoTControl::RIoTControl()
@@ -98,8 +99,7 @@ namespace WPEFramework
 
                     for (const auto &device : deviceList)
                     {
-                        std::cout << "Found device, Name " << device->deviceName << " , ID:" << device->deviceId <<
-                        ", Class "<<device->devType<< std::endl;
+                        std::cout << "Found device, Name " << device->deviceName << " , ID:" << device->deviceId << ", Class " << device->devType << std::endl;
                     }
                 }
                 success = true;
@@ -166,6 +166,10 @@ namespace WPEFramework
 
             return (success);
         }
+        void RIoTControl::deInitialize()
+        {
+            avahi::unInitialize();
+        }
 
     } // namespace Plugin
 } // namespace WPEFramework
@@ -180,8 +184,9 @@ int main(int argc, char const *argv[])
     std::list<std::string> properties;
     client->getAvailableDevicesWrapper();
     client->getDeviceProperties("1234-123-321312", properties);
-    client->getDeviceProperty("1234-123-321312","doomed");
-    client->sendCommand("1234-123-321312","on=false");
+    client->getDeviceProperty("1234-123-321312", "doomed");
+    client->sendCommand("1234-123-321312", "on=false");
+    client->deInitialize();
     delete client;
 
     return 0;

@@ -57,7 +57,7 @@ namespace WPEFramework
             bool getDeviceProperties(const std::string &uuid, std::list<std::string> &properties);
             bool sendCommand(const std::string &uuid, const std::string &cnd);
 
-            bool initializeIPC();
+            void deInitialize();
 
         public:
             RIoTControl();

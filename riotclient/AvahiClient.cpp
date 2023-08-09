@@ -20,6 +20,8 @@
 #include <thread>
 #include <avahi-client/client.h>
 #include <avahi-client/lookup.h>
+#include <avahi-common/timeval.h>
+
 #include <avahi-common/thread-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
@@ -80,7 +82,7 @@ namespace avahi
             device->ipAddress = a;
             device->addrType = (address->proto == AVAHI_PROTO_INET ? IPV4 : IPV6);
             deviceList.push_back(device);
-            stopDiscovery();
+            // stopDiscovery();
         }
         avahi_service_resolver_free(r);
     }
@@ -140,6 +142,18 @@ namespace avahi
             std::cout << "Failed to create avahi poll object." << std::endl;
             return m_initialized;
         }
+        struct timeval tv;
+        const AvahiPoll *pollObj = avahi_threaded_poll_get(thread_poll);
+
+        avahi_elapse_time(&tv, DD_TIMEOUT_MILLIS, 0);
+
+        pollObj->timeout_new(
+            pollObj, &tv, [](AvahiTimeout *timeout, void *userdata)
+            {
+            std::cout << "[initialize]  timeout reached..." << std::endl;
+            m_scanInProgress = false;
+            avahi_threaded_poll_quit(thread_poll); },
+            nullptr);
 
         /* Allocate a new client */
         client = avahi_client_new(avahi_threaded_poll_get(thread_poll), (AvahiClientFlags)0,
@@ -172,6 +186,7 @@ namespace avahi
         // Let us put the scan in progress.
         m_scanInProgress = true;
         std::cout << "[discoverDevices] Starting scanning" << std::endl;
+
         avahi_threaded_poll_start(thread_poll);
 
         std::unique_lock<std::mutex> lock(m_stateMutex);
@@ -214,14 +229,15 @@ namespace avahi
             avahi_client_free(client);
         if (thread_poll)
         {
-           // avahi_threaded_poll_lock(thread_poll);
+            // avahi_threaded_poll_lock(thread_poll);
             avahi_threaded_poll_stop(thread_poll);
-            //avahi_threaded_poll_unlock(thread_poll);
+            // avahi_threaded_poll_unlock(thread_poll);
         }
         m_initialized = false;
         sb = nullptr;
         client = nullptr;
         thread_poll = nullptr;
+        std::cout << "unInitialize done " << std::endl;
         return m_initialized;
     }
 }
