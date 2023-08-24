@@ -21,6 +21,8 @@
 #include "AvahiClient.h"
 #include "RIoTConnector.h"
 
+#include <sstream>
+
 #define API_VERSION_NUMBER_MAJOR 1
 #define API_VERSION_NUMBER_MINOR 0
 #define API_VERSION_NUMBER_PATCH 0
@@ -38,23 +40,16 @@ namespace WPEFramework
                 std::list<std::shared_ptr<avahi::RDKDevice>> devices;
                 if (avahi::discoverDevices(devices) > 0)
                 {
-                    // Find the one with ipv4 address and return
-                    for (std::list<std::shared_ptr<avahi::RDKDevice>>::iterator it = devices.begin(); it != devices.end(); ++it)
-                    {
-                        std::shared_ptr<avahi::RDKDevice> device = *it;
-                        std::cout << "Found IOT Gateway device " << device->ipAddress << ":" << device->port << std::endl;
-                        if (device->addrType == avahi::IP_ADDR_TYPE::IPV4)
-                        {
-                            std::cout << "Found ipv4 device " << device->ipAddress << ":" << device->port << std::endl;
-                            address = "tcp://" + device->ipAddress + ":" + std::to_string(device->port);
-                        }
-                    }
+                    // Assumption is avahi is running on the link local ipv4 address.
+                    std::shared_ptr<avahi::RDKDevice> device = devices.front();
+                    address = "tcp://" + device->ipAddress + ":" + std::to_string(device->port);
+                    std::cout << "Found ipv4 device " << device->ipAddress << ":" << device->port << std::endl;
                 }
                 else
                 {
                     std::cout << " Failed to identify RDK IoT Gateway." << std::endl;
                 }
-                // avahi::unInitialize();
+                avahi::unInitialize();
                 std::cout << " Failed to identify IPV4 RDK IoT Gateway." << std::endl;
             }
             else
@@ -66,8 +61,9 @@ namespace WPEFramework
         }
 
         RIoTControl::RIoTControl()
-            : m_apiVersionNumber(API_VERSION_NUMBER_MAJOR)
+            : m_apiVersionNumber(API_VERSION_NUMBER_MAJOR), connectedToRemote(false)
         {
+            riotConn = new iotbridge::RIoTConnector();
         }
 
         RIoTControl::~RIoTControl()
@@ -82,28 +78,40 @@ namespace WPEFramework
             }
 
             if (!remote_addr.empty())
-                return iotbridge::initializeIPC(remote_addr);
-            return false;
+                connectedToRemote = riotConn->initializeIPC(remote_addr);
+            std::cout << "[RIoTControl::connectToRemote] completed .Remote address: " << remote_addr.c_str() << std::endl;
+            return connectedToRemote;
+        }
+        // Supported methods
+        bool RIoTControl::refreshIoTBridgeConnection()
+        {
+
+            if (!connectedToRemote)
+                connectToRemote();
+
+            return connectedToRemote;
         }
 
-        // Supported methods
         bool RIoTControl::getAvailableDevicesWrapper()
         {
             bool success = false;
-            if (connectToRemote())
+            if (connectedToRemote)
             {
                 std::list<std::shared_ptr<WPEFramework::iotbridge::IOTDevice>> deviceList;
-                if (iotbridge::getDeviceList(deviceList) > 0)
+
+                if (riotConn->getDeviceList(deviceList) > 0)
                 {
-                    std::cout << "[getAvailableDevicesWrapper] total count " << deviceList.size() << std::endl;
 
                     for (const auto &device : deviceList)
                     {
-                        std::cout << "Found device, Name " << device->deviceName << " , ID:" << device->deviceId << ", Class " << device->devType << std::endl;
+
+                        std::cout << "deviceName " << device->deviceName << std::endl;
+                        std::cout << "uuid " << device->deviceId << std::endl;
+                        std::cout << "type " << device->devType << std::endl;
                     }
                 }
+
                 success = true;
-                iotbridge::cleanupIPC();
             }
             else
             {
@@ -118,13 +126,24 @@ namespace WPEFramework
 
             if (connectToRemote())
             {
-                iotbridge::getDeviceProperties(uuid, properties);
-                std::cout << " Value returned is " << properties.size() << std::endl;
+                std::list<std::string> properties;
+                riotConn->getDeviceProperties(uuid, properties);
+                std::cout << "Value returned is " << properties.size() << std::endl;
+
+                for (std::string const &property : properties)
+                {
+                    std::stringstream stream(property);
+                    std::string key, value;
+                    std::getline(stream, key, '=');
+                    std::getline(stream, value, '=');
+                    std::cout <<"\t"<< key << " : " << value << std::endl;
+                }
+
                 success = true;
-                iotbridge::cleanupIPC();
             }
             else
             {
+
                 std::cout << "Failed to connect to IoT Gateway" << std::endl;
             }
 
@@ -136,10 +155,9 @@ namespace WPEFramework
 
             if (connectToRemote())
             {
-                std::string propVal = iotbridge::getDeviceProperty(uuid, prop);
-                std::cout << " Value returned is " << propVal << std::endl;
+                std::string propVal = riotConn->getDeviceProperty(uuid, prop);
+                std::cout << "IOT gateway returned " << propVal << std::endl;
                 success = true;
-                iotbridge::cleanupIPC();
             }
             else
             {
@@ -152,12 +170,10 @@ namespace WPEFramework
         {
             bool success = false;
 
-            if (connectToRemote())
+            if (connectedToRemote)
             {
-                if (0 == iotbridge::sendCommand(uuid, cmd))
+                if (0 == riotConn->sendCommand(uuid, cmd))
                     success = true;
-                std::cout << "Send command successfully. " << std::endl;
-                iotbridge::cleanupIPC();
             }
             else
             {
@@ -168,7 +184,12 @@ namespace WPEFramework
         }
         void RIoTControl::deInitialize()
         {
-            avahi::unInitialize();
+            riotConn->cleanupIPC();
+            delete riotConn;
+            riotConn = nullptr;
+
+            connectedToRemote = false;
+            remote_addr = "";
         }
 
     } // namespace Plugin
@@ -182,12 +203,12 @@ int main(int argc, char const *argv[])
 
     RIoTControl *client = new RIoTControl();
     std::list<std::string> properties;
+    while(!client->refreshIoTBridgeConnection());
     client->getAvailableDevicesWrapper();
     client->getDeviceProperties("1234-123-321312", properties);
     client->getDeviceProperty("1234-123-321312", "doomed");
     client->sendCommand("1234-123-321312", "on=false");
     client->deInitialize();
     delete client;
-
     return 0;
 }

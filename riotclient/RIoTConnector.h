@@ -2,7 +2,7 @@
  * If not stated otherwise in this file or this component's LICENSE
  * file the following copyright and licenses apply:
  *
- * Copyright 2023 RDK Management
+ * Copyright 2020 RDK Management
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@
 
 #pragma once
 #include <string>
+#include <memory>
 #include <list>
-#include <list>
+#include "rtConnection.h"
 namespace WPEFramework
 {
     namespace iotbridge
     {
-
         typedef struct _IOTDevice
         {
             std::string deviceName;
@@ -33,12 +33,23 @@ namespace WPEFramework
             std::string devType;
         } IOTDevice;
 
-        bool initializeIPC(const std::string &remoteAddr);
-        void cleanupIPC();
+        class RIoTConnector
+        {
 
-        int getDeviceList(std::list<std::shared_ptr<IOTDevice>> &deviceList);
-        int getDeviceProperties(const std::string &uuid, std::list<std::string> &propList);
-        std::string getDeviceProperty(const std::string &uuid, const std::string &propertyName);
-        int sendCommand(const std::string &uuid, const std::string &cmd);
+        private:
+            rtConnection con;
+            rtError rtConnStatus;
+
+        public:
+        RIoTConnector():con(nullptr),rtConnStatus(RT_NO_CONNECTION){}
+
+            bool initializeIPC(const std::string &remoteAddr);
+            void cleanupIPC();
+            
+            int getDeviceList(std::list<std::shared_ptr<IOTDevice> > &deviceList);
+            int getDeviceProperties(const std::string &uuid, std::list<std::string> &propList);
+            std::string getDeviceProperty(const std::string &uuid, const std::string &propertyName);
+            int sendCommand(const std::string &uuid, const std::string &cmd);
+        };
     }
 }

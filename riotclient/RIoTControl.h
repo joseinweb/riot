@@ -23,6 +23,7 @@
 #include <atomic>
 #include <list>
 
+#include "RIoTConnector.h"
 namespace WPEFramework
 {
     namespace Plugin
@@ -48,10 +49,12 @@ namespace WPEFramework
 
             int m_apiVersionNumber;
             std::string remote_addr;
+            iotbridge::RIoTConnector *riotConn;
+            bool connectedToRemote;
 
             // Available functions
             bool connectToRemote();
-
+            bool refreshIoTBridgeConnection();
             bool getAvailableDevicesWrapper();
             bool getDeviceProperty(const std::string &uuid, const std::string &prop);
             bool getDeviceProperties(const std::string &uuid, std::list<std::string> &properties);

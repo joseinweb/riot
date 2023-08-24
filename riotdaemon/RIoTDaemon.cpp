@@ -60,7 +60,7 @@ void onAvailableDevices(rtMessageHeader const *rtHeader, uint8_t const *rtMsg, u
         rtMessage_SetString(device, "devType", "Light");
         rtMessage_AddMessage(res, "devices", device);
 
-        const char *output;
+        char *output;
         uint32_t outLen;
 
         rtMessage_Create(&device);
