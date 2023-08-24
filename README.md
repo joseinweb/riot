@@ -12,6 +12,7 @@ use the following commands
 The excutables will be in riotclient and riotdaemon folder in build folder.
 
 ### Running the code
+Before starting the client and server, you need to **ensure that the rbus daemon is running** in your device.
 First you need to set environment variables
 
     export PATH=$PATH:${RBUS_INSTALL_DIR}/usr/bin
