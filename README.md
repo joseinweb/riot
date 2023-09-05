@@ -1,5 +1,9 @@
 # riot
 
+For using with Yocto use this command
+
+devtool add --autorev iotdd https://github.com/joseinweb/riot.git --srcbranch main
+
 To build we have avahi-client and rbus dependencies. 
 use the following commands
 ### Building the code
