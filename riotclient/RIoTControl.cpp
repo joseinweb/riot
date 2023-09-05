@@ -205,9 +205,20 @@ int main(int argc, char const *argv[])
     std::list<std::string> properties;
     while(!client->refreshIoTBridgeConnection());
     client->getAvailableDevicesWrapper();
-    client->getDeviceProperties("1234-123-321312", properties);
-    client->getDeviceProperty("1234-123-321312", "doomed");
-    client->sendCommand("1234-123-321312", "on=false");
+
+    client->getDeviceProperties("000d6f000ef0a7a8", properties);
+    client->getDeviceProperty("000d6f000ef0a7a8", "hardwareVersion");
+    client->sendCommand("000d6f000ef0a7a8", "isOn=false");
+    int x;
+    std::cout <<"Light turned off"<<std::endl;
+    std::cout << "Enter a number :" << std::flush;
+    std::cin>>x;
+    client->sendCommand("000d6f000ef0a7a8", "isOn=true");
+    std::cout <<"Light turned on"<<std::endl;
+    std::cout << "Enter a number :" << std::flush;
+    std::cin>>x;
+    client->sendCommand("000d6f000ef0a7a8", "isOn=false");
+    std::cout <<"Light turned off"<<std::endl;
     client->deInitialize();
     delete client;
     return 0;
